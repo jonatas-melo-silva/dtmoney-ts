@@ -3,18 +3,8 @@ import { TransactionsContext } from '../../TransactionsContext'
 
 import { Container } from './styles'
 
-interface ITransaction {
-  id: number
-  title: string
-  amount: number
-  transactionType: 'deposit' | 'withdraw'
-  category: string
-  createAt: string
-}
-
 export const TransactionsTable: React.FC = () => {
   const { transactions } = useContext(TransactionsContext)
-
   return (
     <Container>
       <table>

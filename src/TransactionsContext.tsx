@@ -7,7 +7,7 @@ interface ITransaction {
   amount: number
   transactionType: string
   category: string
-  createAt: string
+  createAt: Date
 }
 
 type TransactionRequest = Omit<ITransaction, 'id' | 'createAt'>
@@ -22,31 +22,37 @@ interface ITransactionsProviderProps {
 
 interface ITransactionsContext {
   transactions: ITransaction[]
-  createTransaction: (transaction: TransactionRequest) => void
+  createTransaction: (transaction: TransactionRequest) => Promise<void>
   // deleteTransaction: (id: number) => Promise<void>
 }
 
 export const TransactionsContext = createContext<ITransactionsContext>(
   {} as ITransactionsContext
-  )
+)
 
-export const TransactionsProvider = ({children}: ITransactionsProviderProps) => {
+export const TransactionsProvider = ({
+  children
+}: ITransactionsProviderProps) => {
   const [transactions, setTransactions] = useState<ITransaction[]>([])
 
   useEffect(() => {
     api
-      .get<ITransactionResponse>('transactions')
+      .get<ITransactionResponse>('/transactions')
       .then(response => setTransactions(response.data.transactions))
   }, [])
 
-  function createTransaction(transaction: TransactionRequest) {
-    api.post('transactions', transaction).then(() => {
+  async function createTransaction(transactionRequest: TransactionRequest) {
+    const response = await api.post<ITransaction>('/transactions', {
+      ...transactionRequest,
+      createAt: new Date()
     })
+    const transaction = response.data
+    setTransactions([...transactions, transaction])
   }
 
   return (
-    <TransactionsContext.Provider value={{transactions, createTransaction}}>
+    <TransactionsContext.Provider value={{ transactions, createTransaction }}>
       {children}
     </TransactionsContext.Provider>
   )
-} 
+}
