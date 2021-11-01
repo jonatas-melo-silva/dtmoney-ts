@@ -1,5 +1,7 @@
-import { useState, FormEvent } from 'react'
+import { useState, FormEvent, useContext } from 'react'
 import Modal from 'react-modal'
+import { TransactionsContext } from '../../TransactionsContext'
+
 import closeImg from '../../assets/close.svg'
 import incomeImg from '../../assets/income.svg'
 import outcomeImg from '../../assets/outcome.svg'
@@ -15,14 +17,23 @@ export const NewTransactionModal = ({
   isOpen,
   onRequestClose
 }: IModalProps) => {
+  const { createTransaction } = useContext(TransactionsContext)
+
   const [title, setTitle] = useState<string>('')
-  const [value, setValue] = useState<number>(0)
+  const [amount, setAmount] = useState<number>(0)
   const [category, setCategory] = useState<string>('')
   const [transactionType, setTransactionType] = useState<string>('deposit')
 
   function handleCreateNewTransaction(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
-    console.log(title, value, category, transactionType)
+    const data = { title, amount, category, transactionType }
+
+    createTransaction({
+      title,
+      amount,
+      category,
+      transactionType
+    })
   }
 
   return (
@@ -50,8 +61,8 @@ export const NewTransactionModal = ({
         <input
           type="number"
           placeholder="Valor"
-          value={value}
-          onChange={event => setValue(Number(event.target.value))}
+          value={amount}
+          onChange={event => setAmount(Number(event.target.value))}
         />
         <TransactionTypeContainer>
           <TransactionType
