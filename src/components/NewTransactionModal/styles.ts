@@ -55,12 +55,18 @@ export const TransactionTypeContainer = styled.div`
   gap: 0.5rem;
 `
 
-export const TransactionType = styled.button`
+interface ITransactionTypeProps {
+  isActive: boolean
+}
+
+export const TransactionType = styled.button<ITransactionTypeProps>`
   height: 4rem;
   border: 1px solid var(--input-border);
   border-radius: 0.25rem;
 
-  background: transparent;
+  background: ${props =>
+    props.isActive ? 'var(--green)' : 'transparent'};
+
   display: flex;
   align-items: center;
   justify-content: center;
