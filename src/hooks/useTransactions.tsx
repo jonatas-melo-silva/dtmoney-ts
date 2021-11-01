@@ -1,5 +1,5 @@
-import { createContext, useEffect, useState } from 'react'
-import { api } from './services/api'
+import { createContext, useContext, useEffect, useState } from 'react'
+import { api } from '../services/api'
 
 interface ITransaction {
   id: number
@@ -12,10 +12,6 @@ interface ITransaction {
 
 type TransactionRequest = Omit<ITransaction, 'id' | 'createAt'>
 
-interface ITransactionResponse {
-  transactions: ITransaction[]
-}
-
 interface ITransactionsProviderProps {
   children: React.ReactNode
 }
@@ -23,10 +19,9 @@ interface ITransactionsProviderProps {
 interface ITransactionsContext {
   transactions: ITransaction[]
   createTransaction: (transaction: TransactionRequest) => Promise<void>
-  // deleteTransaction: (id: number) => Promise<void>
 }
 
-export const TransactionsContext = createContext<ITransactionsContext>(
+const TransactionsContext = createContext<ITransactionsContext>(
   {} as ITransactionsContext
 )
 
@@ -37,16 +32,16 @@ export const TransactionsProvider = ({
 
   useEffect(() => {
     api
-      .get<ITransactionResponse>('/transactions')
+      .get('/transactions')
       .then(response => setTransactions(response.data.transactions))
   }, [])
 
   async function createTransaction(transactionRequest: TransactionRequest) {
-    const response = await api.post<ITransaction>('/transactions', {
+    const response = await api.post('/transactions', {
       ...transactionRequest,
       createAt: new Date()
     })
-    const transaction = response.data
+    const { transaction } = response.data
     setTransactions([...transactions, transaction])
   }
 
@@ -55,4 +50,9 @@ export const TransactionsProvider = ({
       {children}
     </TransactionsContext.Provider>
   )
+}
+
+export function useTransactions() {
+  const context = useContext(TransactionsContext)
+  return context
 }
